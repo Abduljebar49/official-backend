@@ -1,0 +1,336 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id                String              @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String              @unique
+  passwordHash      String
+  assignedLocations InventoryLocation[] @relation("AssignedAdmin")
+  adminOwners       AdminOwner[]
+  adminRoles        AdminRole[]
+}
+
+model Owner {
+  id                 String              @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String              @unique
+  passwordHash       String
+  inventoryLocations InventoryLocation[]
+  adminOwners        AdminOwner[]
+}
+
+model InventoryLocation {
+  id              String    @id @default(uuid())
+  ownerId         String
+  locationName    String
+  address         String
+  phoneNumber     String
+  assignedAdminId String?
+  owner           Owner     @relation(fields: [ownerId], references: [id])
+  assignedAdmin   Admin?    @relation("AssignedAdmin", fields: [assignedAdminId], references: [id])
+  products        Product[]
+}
+
+model Product {
+  id                String            @id @default(uuid())
+  productName       String
+  description       String?
+  price             Float
+  quantityInStock   Int
+  locationId        String
+  inventoryLocation InventoryLocation @relation(fields: [locationId], references: [id])
+}
+
+model AdminOwner {
+  id      String @id @default(uuid())
+  adminId String
+  ownerId String
+  admin   Admin  @relation(fields: [adminId], references: [id])
+  owner   Owner  @relation(fields: [ownerId], references: [id])
+
+  @@unique([adminId, ownerId])
+}
+
+model Role {
+  id              String           @id @default(uuid())
+  roleName        String           @unique
+  adminRoles      AdminRole[]
+  rolePermissions RolePermission[]
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  permissionName  String           @unique
+  rolePermissions RolePermission[]
+}
+
+model AdminRole {
+  id      String @id @default(uuid())
+  adminId String
+  roleId  String
+  admin   Admin  @relation(fields: [adminId], references: [id])
+  role    Role   @relation(fields: [roleId], references: [id])
+
+  @@unique([adminId, roleId])
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+}
+
+// model Subscription {
+//   id          String    @id @default(uuid()) @db.Uuid
+//   title       String
+//   branchLimit Int
+//   accounts    Account[] @relation("AccountSubscription")
+// }
+
+// model Account {
+//   objId                String               @id @default(uuid()) @db.Uuid
+//   name                 String
+//   ownerId              String?              @db.Uuid
+//   subscriptionId       String               @db.Uuid
+//   subscription         Subscription         @relation(fields: [subscriptionId], references: [id], name: "AccountSubscription")
+//   branches             Branch[]             @relation("AccountBranches")
+//   productData          ProductData[]        @relation("AccountProductData")
+//   users                User[]               @relation("AccountUsers")
+//   moveReports          MoveReport[]         @relation("AccountMoveReports")
+//   registerReports      RegisterReport[]     @relation("AccountRegisterReports")
+//   returnReports        ReturnReport[]       @relation("AccountReturnReports")
+//   saleReports          SoldReport[]         @relation("AccountSoldReports")
+//   saleCreditReports    SaleCreditReport[]   @relation("AccountSaleCreditReports")
+//   operationalHistories OperationalHistory[] @relation("AccountOperationalHistories")
+// }
+
+// model Branch {
+//   id                   String               @id @default(uuid()) @db.Uuid
+//   name                 String
+//   type                 String
+//   objId                String               @db.Uuid
+//   accounts             Account[]            @relation("AccountBranches")
+//   productData          ProductData[]        @relation("BranchProductData")
+//   moveReports          MoveReport[]         @relation("BranchMoveReports")
+//   registerReports      RegisterReport[]     @relation("BranchRegisterReports")
+//   returnReports        ReturnReport[]       @relation("BranchReturnReports")
+//   saleReports          SoldReport[]         @relation("BranchSoldReports")
+//   saleCreditReports    SaleCreditReport[]   @relation("BranchSaleCreditReports")
+//   operationalHistories OperationalHistory[] @relation("BranchOperationalHistories")
+// }
+
+// model User {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   displayName String
+//   email       String   @unique
+//   gender      String
+//   name        String
+//   objId       String   @db.Uuid
+//   phone       String
+//   role        String
+//   password    String
+//   branches    String?
+//   roles       String?
+//   account     Account? @relation("AccountUsers", fields: [objId], references: [objId])
+// }
+
+// model SuperUser {
+//   id          String @id @default(uuid()) @db.Uuid
+//   displayName String
+//   email       String @unique
+//   phone       String
+//   password    String
+// }
+
+// model BranchType {
+//   id    String  @id @default(uuid()) @db.Uuid
+//   name  String
+//   model String
+//   color String
+//   size  String
+//   col1  String?
+//   col2  String?
+//   col3  String?
+//   col4  String?
+//   limit Int?    @default(4)
+//   type  String
+// }
+
+// model ProductData {
+//   id                   String               @id @default(uuid()) @db.Uuid
+//   branchId             String               @db.Uuid
+//   objId                String               @db.Uuid
+//   name                 String
+//   model                String
+//   color                String
+//   size                 String
+//   price                Int
+//   col1                 String?
+//   col2                 String?
+//   col3                 String?
+//   col4                 String?
+//   quantity             Int
+//   quantityRegistered   Int
+//   check                String               @default("")
+//   isActive             Boolean              @default(true)
+//   account              Account?             @relation("AccountProductData", fields: [objId], references: [objId])
+//   branch               Branch               @relation("BranchProductData", fields: [branchId], references: [id])
+//   moveReports          MoveReport[]         @relation("ProductDataMoveReports")
+//   registerReports      RegisterReport[]     @relation("ProductDataRegisterReports")
+//   returnReports        ReturnReport[]       @relation("ProductDataReturnReports")
+//   saleReports          SoldReport[]         @relation("ProductDataSoldReports")
+//   saleCreditReports    SaleCreditReport[]   @relation("ProductDataSaleCreditReports")
+//   operationalHistories OperationalHistory[] @relation("ProductDataOperationalHistories")
+// }
+
+// model MoveReport {
+//   id                 String      @id @default(uuid()) @db.Uuid
+//   branchId           String      @db.Uuid
+//   objId              String      @db.Uuid
+//   productId          String      @db.Uuid
+//   name               String
+//   model              String
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountMoveReports", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchMoveReports", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataMoveReports", fields: [productId], references: [id])
+// }
+
+// model RegisterReport {
+//   id                 String      @id @default(uuid()) @db.Uuid
+//   branchId           String      @db.Uuid
+//   objId              String      @db.Uuid
+//   productId          String      @db.Uuid
+//   name               String
+//   model              String
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountRegisterReports", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchRegisterReports", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataRegisterReports", fields: [productId], references: [id])
+// }
+
+// model SoldReport {
+//   id        String @id @default(uuid()) @db.Uuid
+//   branchId  String @db.Uuid
+//   objId     String @db.Uuid
+//   productId String @db.Uuid
+//   name      String
+//   model     String
+
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountSoldReports", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchSoldReports", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataSoldReports", fields: [productId], references: [id])
+// }
+
+// model ReturnReport {
+//   id                 String      @id @default(uuid()) @db.Uuid
+//   branchId           String      @db.Uuid
+//   objId              String      @db.Uuid
+//   productId          String      @db.Uuid
+//   name               String
+//   model              String
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountReturnReports", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchReturnReports", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataReturnReports", fields: [productId], references: [id])
+// }
+
+// model SaleCreditReport {
+//   id                 String      @id @default(uuid()) @db.Uuid
+//   branchId           String      @db.Uuid
+//   objId              String      @db.Uuid
+//   productId          String      @db.Uuid
+//   name               String
+//   model              String
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountSaleCreditReports", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchSaleCreditReports", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataSaleCreditReports", fields: [productId], references: [id])
+// }
+
+// model OperationalHistory {
+//   id                 String      @id @default(uuid()) @db.Uuid
+//   branchId           String      @db.Uuid
+//   objId              String      @db.Uuid
+//   productId          String      @db.Uuid
+//   name               String
+//   model              String
+//   color              String
+//   size               String
+//   price              Int
+//   col1               String?
+//   col2               String?
+//   col3               String?
+//   col4               String?
+//   quantity           Int
+//   quantityRegistered Int
+//   check              String      @default("")
+//   isActive           Boolean     @default(true)
+//   account            Account     @relation("AccountOperationalHistories", fields: [objId], references: [objId])
+//   branch             Branch      @relation("BranchOperationalHistories", fields: [branchId], references: [id])
+//   productData        ProductData @relation("ProductDataOperationalHistories", fields: [productId], references: [id])
+// }
