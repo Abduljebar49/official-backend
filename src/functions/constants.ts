@@ -1,4 +1,8 @@
 import { Response } from "express";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const NoDataFound = (
   res: Response,
@@ -14,3 +18,18 @@ export const RespData = (
 ) => {
   return res.status(200).send({ data, message, success: true });
 };
+
+export const generateAccessToken = (user:any)=> {
+  return jwt.sign(
+    JSON.parse(JSON.stringify(user)),
+    process.env.ACCESS_TOKEN_SECRET!,
+    { expiresIn: "1m" }
+  );
+}
+
+export const editGeneratedAccessToken = (authHeader:string,) =>{
+  return jwt.sign(
+    authHeader,
+    process.env.ACCESS_TOKEN_SECRET!,
+    { expiresIn: "1s" },  );
+}

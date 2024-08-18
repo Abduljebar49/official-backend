@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createWithValidation = exports.createWithIdValidation = exports.updateWithIdValidation = exports.getAll = exports.updateOne = exports.deleteOne = exports.createOne = exports.getOneWithEmail = exports.getOne = exports.withErrorHandling = void 0;
 const constants_1 = require("../functions/constants");
+const bcrypt = __importStar(require("bcrypt"));
 const withErrorHandling = (handler) => {
     return (req, res, next, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -34,7 +58,7 @@ const getOne = (where, model) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getOne = getOne;
 const getOneWithEmail = (email, model) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const data = yield model.findUnique({ where: { email: email } });
+        const data = yield model.findUnique({ where: { email } });
         return data;
     }
     catch (e) {
@@ -76,10 +100,16 @@ const createWithIdValidationCore = (req, res, _, validation, model) => __awaiter
         return;
     }
     else {
-        const modelData = yield (0, exports.getOneWithEmail)(body.email, model);
-        if (modelData) {
-            (0, constants_1.NoDataFound)(res, "Email already exist");
-            return;
+        if (body.email) {
+            const modelData = yield (0, exports.getOneWithEmail)(body.email, model);
+            if (modelData) {
+                (0, constants_1.NoDataFound)(res, "Email already exist");
+                return;
+            }
+        }
+        if (body.password) {
+            const salt = yield bcrypt.genSaltSync(10, "a");
+            body.password = bcrypt.hashSync(body.password, salt);
         }
         const newModelData = yield (0, exports.createOne)(body, model);
         if (!newModelData) {

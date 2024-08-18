@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { NoDataFound, RespData } from "../functions/constants";
 import { ZodSchema } from "zod";
+import * as bcrypt from "bcrypt";
 
 export const withErrorHandling = (
   handler: (
@@ -37,7 +38,7 @@ export const getOne = async (where: any, model: any) => {
 
 export const getOneWithEmail = async (email: string, model: any) => {
   try {
-    const data = await model.findUnique({ where: { email: email } });
+    const data = await model.findUnique({ where: { email } });
     return data;
   } catch (e: any) {
     throw new Error(e.message);
@@ -82,11 +83,16 @@ const createWithIdValidationCore = async (
     res.status(400).send({ message: data.error.message, success: false });
     return;
   } else {
-    const modelData = await getOneWithEmail(body.email, model);
-
-    if (modelData) {
-      NoDataFound(res, "Email already exist");
-      return;
+    if(body.email){
+      const modelData = await getOneWithEmail(body.email, model);
+      if (modelData) {
+        NoDataFound(res, "Email already exist");
+        return;
+      }
+    }
+    if(body.password){
+      const salt = await bcrypt.genSaltSync(10, "a");
+      body.password = bcrypt.hashSync(body.password, salt);
     }
     const newModelData = await createOne(body, model);
     if (!newModelData) {
