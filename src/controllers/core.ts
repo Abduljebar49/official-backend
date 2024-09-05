@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { NoDataFound, RespData } from "../functions/constants";
+import { baseUrl, NoDataFound, RespData } from "../functions/constants";
 import { ZodSchema } from "zod";
 import * as bcrypt from "bcrypt";
 
@@ -41,6 +41,17 @@ export const getOneWithEmail = async (email: string, model: any) => {
     const data = await model.findUnique({ where: { email } });
     return data;
   } catch (e: any) {
+    console.log("e : ", e);
+    throw new Error(e.message);
+  }
+};
+
+export const getOneWithId = async (id: string, model: any) => {
+  try {
+    const data = await model.findUnique({ where: { id } });
+    return data;
+  } catch (e: any) {
+    console.log("e : ", e);
     throw new Error(e.message);
   }
 };
@@ -50,6 +61,7 @@ export const createOne = async (body: any, model: any) => {
     const data = await model.create({ data: body });
     return data;
   } catch (e: any) {
+    console.log("e : ",e);
     return undefined;
   }
 };
@@ -77,26 +89,39 @@ const createWithIdValidationCore = async (
   model: any
 ) => {
   const body = req.body;
+
+  if (req.file) {
+    const url = baseUrl + "courses/" + req.file?.filename;
+    body.image = url;
+  }
+
+  if(body.price){
+    body.price = parseInt(body.price);
+  }
+
   const data = validation.safeParse(body);
   if (data.error) {
     console.log(data.error);
-    res.status(400).send({ message: data.error.message, success: false });
+    res.status(400).send({ message: data.error, success: false });
     return;
   } else {
-    if(body.email){
+    if (body.email) {
       const modelData = await getOneWithEmail(body.email, model);
       if (modelData) {
         NoDataFound(res, "Email already exist");
         return;
       }
     }
-    if(body.password){
+    if (body.password) {
       const salt = await bcrypt.genSaltSync(10, "a");
       body.password = bcrypt.hashSync(body.password, salt);
     }
     const newModelData = await createOne(body, model);
     if (!newModelData) {
       return RespData(res, [], "There is an error in server");
+    }
+    if (newModelData.password) {
+      newModelData.password = undefined;
     }
     return RespData(res, newModelData);
   }
@@ -110,10 +135,16 @@ const updateWithIdValidationCore = async (
   model: any
 ) => {
   const body = req.body;
+  if (req.file) {
+    const url = baseUrl + "courses/" + req.file?.filename;
+    body.image = url;
+  }
+
   const data = validation.safeParse(body);
+
   if (data.error) {
     console.log(data.error);
-    res.status(400).send({ message: data.error.message, success: false });
+    res.status(400).send({ message: data.error, success: false });
     return;
   } else {
     if (!req.params.id) {
@@ -124,7 +155,7 @@ const updateWithIdValidationCore = async (
       body.password = undefined;
     }
     body.id = req.params.id;
-    const modelData = await getOneWithEmail(body.email, model);
+    const modelData = await getOneWithId(req.params.id, model);
     if (!modelData) {
       NoDataFound(res, "No data with given ID");
       return;
@@ -158,7 +189,6 @@ const createWithValidationCore = async (
     next(e);
   }
 };
-
 
 export const updateWithIdValidation = withErrorHandling(
   async (req, res, next, validation, model) => {

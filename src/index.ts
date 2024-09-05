@@ -4,10 +4,11 @@ import logger from "morgan";
 import { PrismaClient } from "@prisma/client";
 import allRoute from "./routes";
 import { errorHandler, CustomError } from "./middleware/error";
+import authHandler from "./middleware/auth";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ?? 3001;
 
 const app: Express = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ async function main() {
   app.use(logger("dev"));
   app.use(express.static("./public"));
   app.use(errorHandler);
+  app.use(authHandler)
   app.use("/api", allRoute);
   app.listen(port, () => console.log(`listening on another port ${port}`));
 }

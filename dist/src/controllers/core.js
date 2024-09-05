@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createWithValidation = exports.createWithIdValidation = exports.updateWithIdValidation = exports.getAll = exports.updateOne = exports.deleteOne = exports.createOne = exports.getOneWithEmail = exports.getOne = exports.withErrorHandling = void 0;
+exports.createWithValidation = exports.createWithIdValidation = exports.updateWithIdValidation = exports.getAll = exports.updateOne = exports.deleteOne = exports.createOne = exports.getOneWithId = exports.getOneWithEmail = exports.getOne = exports.withErrorHandling = void 0;
 const constants_1 = require("../functions/constants");
 const bcrypt = __importStar(require("bcrypt"));
 const withErrorHandling = (handler) => {
@@ -62,16 +62,29 @@ const getOneWithEmail = (email, model) => __awaiter(void 0, void 0, void 0, func
         return data;
     }
     catch (e) {
+        console.log("e : ", e);
         throw new Error(e.message);
     }
 });
 exports.getOneWithEmail = getOneWithEmail;
+const getOneWithId = (id, model) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield model.findUnique({ where: { id } });
+        return data;
+    }
+    catch (e) {
+        console.log("e : ", e);
+        throw new Error(e.message);
+    }
+});
+exports.getOneWithId = getOneWithId;
 const createOne = (body, model) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield model.create({ data: body });
         return data;
     }
     catch (e) {
+        console.log("e : ", e);
         return undefined;
     }
 });
@@ -92,11 +105,19 @@ const getAll = (where, model) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.getAll = getAll;
 const createWithIdValidationCore = (req, res, _, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const body = req.body;
+    if (req.file) {
+        const url = constants_1.baseUrl + "courses/" + ((_a = req.file) === null || _a === void 0 ? void 0 : _a.filename);
+        body.image = url;
+    }
+    if (body.price) {
+        body.price = parseInt(body.price);
+    }
     const data = validation.safeParse(body);
     if (data.error) {
         console.log(data.error);
-        res.status(400).send({ message: data.error.message, success: false });
+        res.status(400).send({ message: data.error, success: false });
         return;
     }
     else {
@@ -115,15 +136,23 @@ const createWithIdValidationCore = (req, res, _, validation, model) => __awaiter
         if (!newModelData) {
             return (0, constants_1.RespData)(res, [], "There is an error in server");
         }
+        if (newModelData.password) {
+            newModelData.password = undefined;
+        }
         return (0, constants_1.RespData)(res, newModelData);
     }
 });
 const updateWithIdValidationCore = (req, res, _, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const body = req.body;
+    if (req.file) {
+        const url = constants_1.baseUrl + "courses/" + ((_a = req.file) === null || _a === void 0 ? void 0 : _a.filename);
+        body.image = url;
+    }
     const data = validation.safeParse(body);
     if (data.error) {
         console.log(data.error);
-        res.status(400).send({ message: data.error.message, success: false });
+        res.status(400).send({ message: data.error, success: false });
         return;
     }
     else {
@@ -135,7 +164,7 @@ const updateWithIdValidationCore = (req, res, _, validation, model) => __awaiter
             body.password = undefined;
         }
         body.id = req.params.id;
-        const modelData = yield (0, exports.getOneWithEmail)(body.email, model);
+        const modelData = yield (0, exports.getOneWithId)(req.params.id, model);
         if (!modelData) {
             (0, constants_1.NoDataFound)(res, "No data with given ID");
             return;

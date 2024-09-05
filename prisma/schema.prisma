@@ -8,10 +8,52 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  password String
-  fullName String
-  phone    String? @unique
-  isActive Boolean @default(true)
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  fullName    String
+  phone       String?      @unique
+  userType    UserType     @default(ADMIN)
+  isActive    Boolean      @default(true)
+  courses     Course[]     @relation("UserCourses")
+  enrollments Enrollment[] @relation("UserEnrollments")
+  createdAt   DateTime     @default(now())
+}
+
+model Course {
+  id            String       @id @default(uuid())
+  title         String
+  description   String
+  instructor    User         @relation("UserCourses", fields: [instructorId], references: [id])
+  instructorId  String
+  image         String
+  content       String
+  duration      String
+  price         Int
+  prerequisites String?
+  enrollments   Enrollment[]
+  createdAt     DateTime     @default(now())
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  course    Course           @relation(fields: [courseId], references: [id])
+  courseId  String
+  user      User             @relation("UserEnrollments", fields: [userId], references: [id])
+  userId    String
+  status    EnrollmentStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+}
+
+enum UserType{
+  ADMIN
+  STUDENT
+  INSTRUCTOR
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }

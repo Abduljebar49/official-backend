@@ -19,8 +19,9 @@ const morgan_1 = __importDefault(require("morgan"));
 const client_1 = require("@prisma/client");
 const routes_1 = __importDefault(require("./routes"));
 const error_1 = require("./middleware/error");
+const auth_1 = __importDefault(require("./middleware/auth"));
 dotenv_1.default.config();
-const port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3000;
+const port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3001;
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(function (req, res, next) {
@@ -37,6 +38,7 @@ function main() {
         app.use((0, morgan_1.default)("dev"));
         app.use(express_1.default.static("./public"));
         app.use(error_1.errorHandler);
+        app.use(auth_1.default);
         app.use("/api", routes_1.default);
         app.listen(port, () => console.log(`listening on another port ${port}`));
     });

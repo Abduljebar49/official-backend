@@ -17,18 +17,18 @@ import {
 
 const router = express.Router();
 
-router.get("/user", async (_: Request, res: Response, next: Function) => {
+router.get("/", async (_: Request, res: Response, next: Function) => {
   const data = await getAll({}, prisma.user);
   RespData(res, data);
 });
 
-router.get("/user/:id", async (req: Request, res: Response, next: Function) => {
+router.get("/:id", async (req: Request, res: Response, next: Function) => {
   const data = await getOne({ id: req.params.id }, prisma.user);
   RespData(res, data);
 });
 
 router.post(
-  "/user",
+  "/",
   async (req: Request, res: Response, next: NextFunction) => {
     return await createWithIdValidation(
       req,
@@ -41,7 +41,7 @@ router.post(
 );
 
 router.put(
-  "/user/:id",
+  "/:id",
   async (req: Request, res: Response, next: NextFunction) => {
     return await updateWithIdValidation(
       req,
@@ -53,7 +53,7 @@ router.put(
   }
 );
 
-router.delete("/user/:id", async (req: Request, res: Response, _: Function) => {
+router.delete("//:id", async (req: Request, res: Response, _: Function) => {
   try {
     const data = await deleteOne(req.params.id, prisma.user);
     RespData(res, data);
