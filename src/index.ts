@@ -19,7 +19,6 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   next();
 });
-
 const prisma = new PrismaClient();
 
 async function main() {
