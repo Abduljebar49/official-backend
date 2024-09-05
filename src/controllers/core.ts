@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { NoDataFound, RespData } from "../functions/constants";
 import { ZodSchema } from "zod";
 import * as bcrypt from "bcrypt";
+import { requestSchema } from "../functions/validators";
+import prisma from "../../prisma/clients";
 
 export const withErrorHandling = (
   handler: (
@@ -54,6 +56,16 @@ export const createOne = async (body: any, model: any) => {
   }
 };
 
+export const createMultiple = async (body: any[], model: any) => {
+  try {
+    const data = await model.createMany({ data: body });
+    return data;
+  } catch (e: any) {
+    return undefined;
+  }
+};
+
+
 export const deleteOne = async (id: string, model: any) => {
   const data = await model.delete({ where: { id } });
   return data;
@@ -83,14 +95,14 @@ const createWithIdValidationCore = async (
     res.status(400).send({ message: data.error.message, success: false });
     return;
   } else {
-    if(body.email){
+    if (body.email) {
       const modelData = await getOneWithEmail(body.email, model);
       if (modelData) {
         NoDataFound(res, "Email already exist");
         return;
       }
     }
-    if(body.password){
+    if (body.password) {
       const salt = await bcrypt.genSaltSync(10, "a");
       body.password = bcrypt.hashSync(body.password, salt);
     }
@@ -100,6 +112,33 @@ const createWithIdValidationCore = async (
     }
     return RespData(res, newModelData);
   }
+};
+
+const createMultipleWithIdValidationCore = async (
+  req: Request,
+  res: Response,
+  _: NextFunction,
+  validation: ZodSchema,
+  model: any
+) => {
+  const { list } = req.body();
+
+  if (!Array.isArray(list)) {
+    return RespData(res, [], "Invalid data format. Expected an array.", 401);
+  }
+
+  const isValidEntries = list.every(
+    (entry) => requestSchema.safeParse(entry).success
+  );
+  if (!isValidEntries) {
+    return RespData(res, isValidEntries, "Some entries have invalid formats.", 401);
+  }
+
+  const newModelData = await createMultiple(list, model);
+  if (!newModelData) {
+    return RespData(res, [], "There is an error in server");
+  }
+  return RespData(res, newModelData);
 };
 
 const updateWithIdValidationCore = async (
@@ -158,7 +197,6 @@ const createWithValidationCore = async (
     next(e);
   }
 };
-
 
 export const updateWithIdValidation = withErrorHandling(
   async (req, res, next, validation, model) => {

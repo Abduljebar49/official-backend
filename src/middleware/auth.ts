@@ -7,11 +7,9 @@ interface AuthenticatedRequest extends Request {
 const authHandler = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const publicPaths = [
-      "/api/verify/otp",
-      "/api/send/otp",
       "/api/login",
       "/api/login/super",
-      "/api/product/register/import"
+      "/api/send/welcome"
     ];
 
     if (publicPaths.includes(req.originalUrl)) {

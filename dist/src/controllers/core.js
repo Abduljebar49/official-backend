@@ -32,9 +32,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createWithValidation = exports.createWithIdValidation = exports.updateWithIdValidation = exports.getAll = exports.updateOne = exports.deleteOne = exports.createOne = exports.getOneWithEmail = exports.getOne = exports.withErrorHandling = void 0;
+exports.createWithValidation = exports.createWithIdValidation = exports.updateWithIdValidation = exports.getAll = exports.updateOne = exports.deleteOne = exports.createMultiple = exports.createOne = exports.getOneWithEmail = exports.getOne = exports.withErrorHandling = void 0;
 const constants_1 = require("../functions/constants");
 const bcrypt = __importStar(require("bcrypt"));
+const validators_1 = require("../functions/validators");
 const withErrorHandling = (handler) => {
     return (req, res, next, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -76,6 +77,16 @@ const createOne = (body, model) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.createOne = createOne;
+const createMultiple = (body, model) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield model.createMany({ data: body });
+        return data;
+    }
+    catch (e) {
+        return undefined;
+    }
+});
+exports.createMultiple = createMultiple;
 const deleteOne = (id, model) => __awaiter(void 0, void 0, void 0, function* () {
     const data = yield model.delete({ where: { id } });
     return data;
@@ -117,6 +128,21 @@ const createWithIdValidationCore = (req, res, _, validation, model) => __awaiter
         }
         return (0, constants_1.RespData)(res, newModelData);
     }
+});
+const createMultipleWithIdValidationCore = (req, res, _, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
+    const { list } = req.body();
+    if (!Array.isArray(list)) {
+        return (0, constants_1.RespData)(res, [], "Invalid data format. Expected an array.", 401);
+    }
+    const isValidEntries = list.every((entry) => validators_1.requestSchema.safeParse(entry).success);
+    if (!isValidEntries) {
+        return (0, constants_1.RespData)(res, isValidEntries, "Some entries have invalid formats.", 401);
+    }
+    const newModelData = yield (0, exports.createMultiple)(list, model);
+    if (!newModelData) {
+        return (0, constants_1.RespData)(res, [], "There is an error in server");
+    }
+    return (0, constants_1.RespData)(res, newModelData);
 });
 const updateWithIdValidationCore = (req, res, _, validation, model) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;

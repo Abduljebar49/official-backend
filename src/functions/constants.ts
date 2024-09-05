@@ -14,9 +14,10 @@ export const NoDataFound = (
 export const RespData = (
   res: Response,
   data: any = [],
-  message: string = "success"
+  message: string = "success",
+  status: number = 200
 ) => {
-  return res.status(200).send({ data, message, success: true });
+  return res.status(status).send({ data, message, success: true });
 };
 
 export const generateAccessToken = (user:any)=> {
@@ -32,4 +33,11 @@ export const editGeneratedAccessToken = (authHeader:string,) =>{
     authHeader,
     process.env.ACCESS_TOKEN_SECRET!,
     { expiresIn: "1s" },  );
+}
+
+export enum RStatus{
+  SUCCESS="successfully fetched",
+  CREATED="successfully created",
+  UPDATED="successfully updated",
+  DELETED="successfully deleted"
 }

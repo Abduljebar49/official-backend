@@ -17,3 +17,20 @@ export const loginValidation = z.object({
   email:z.string().email(),
   password:z.string().min(4)
 })
+
+
+export const requestSchema = z.object({
+  itemName: z.string(),
+  brandName: z.string(),
+  amount: z.number(),
+  userId: z.number(),
+});
+
+export const sendEmailSchema = z.object({});
+
+export const requestEditSchema = z.object({
+  itemName: z.string().optional(),
+  brandName: z.string().optional(),
+  amount: z.number().optional(),
+  userId: z.number().optional(),
+});

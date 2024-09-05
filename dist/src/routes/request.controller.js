@@ -13,10 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const core_1 = require("../controllers/core");
 const clients_1 = __importDefault(require("../../prisma/clients"));
-const validators_1 = require("../functions/validators");
 const constants_1 = require("../functions/constants");
+const validators_1 = require("../functions/validators");
+const core_1 = require("../controllers/core");
+const tag = "requests";
 const router = express_1.default.Router();
 router.get("", (_, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const data = yield (0, core_1.getAll)({}, clients_1.default.user);
@@ -27,6 +28,9 @@ router.get("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     (0, constants_1.RespData)(res, data);
 }));
 router.post("", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield (0, core_1.createWithIdValidation)(req, res, next, validators_1.userSchema, clients_1.default.user);
+}));
+router.post("/multi", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     return yield (0, core_1.createWithIdValidation)(req, res, next, validators_1.userSchema, clients_1.default.user);
 }));
 router.put("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

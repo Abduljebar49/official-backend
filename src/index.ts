@@ -3,14 +3,16 @@ import dotenv from "dotenv";
 import logger from "morgan";
 import { PrismaClient } from "@prisma/client";
 import allRoute from "./routes";
-import { errorHandler, CustomError } from "./middleware/error";
+import cors from "cors";
+import { errorHandler } from "./middleware/error";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ?? 3002;
 
 const app: Express = express();
 app.use(express.json());
+app.use(cors());
 app.use(function (req: Request, res: Response, next: NextFunction) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -33,6 +35,7 @@ async function main() {
 main()
   .then(async () => {
     await prisma.$disconnect();
+    process.exit(1);
   })
   .catch(async (e) => {
     // console.error(e);
