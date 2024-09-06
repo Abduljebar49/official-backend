@@ -5,7 +5,7 @@ import multer from "multer";
 
 dotenv.config();
 
-export const baseUrl = "http://localhost:3001/";
+export const baseUrl = "https://academy-be.debbal.com/";
 
 export const NoDataFound = (
   res: Response,

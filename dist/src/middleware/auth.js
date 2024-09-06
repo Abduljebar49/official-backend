@@ -16,6 +16,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const publicPaths = [
+            "api/users",
             "/api/auth/login",
         ];
         if (publicPaths.includes(req.originalUrl)) {

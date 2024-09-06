@@ -7,6 +7,7 @@ interface AuthenticatedRequest extends Request {
 const authHandler = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const publicPaths = [
+      "api/users",
       "/api/auth/login",
     ];
 

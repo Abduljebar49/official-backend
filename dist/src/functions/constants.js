@@ -8,7 +8,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const multer_1 = __importDefault(require("multer"));
 dotenv_1.default.config();
-exports.baseUrl = "http://localhost:3001/";
+exports.baseUrl = "https://academy-be.debbal.com/";
 const NoDataFound = (res, message = "No data found with given id") => {
     return res.status(404).send({ message, success: false });
 };
