@@ -8,7 +8,7 @@ import { errorHandler } from "./middleware/error";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 3002;
+const port = process.env.PORT ?? 3004;
 
 const app: Express = express();
 app.use(express.json());
@@ -28,8 +28,11 @@ async function main() {
   app.use(logger("dev"));
   app.use(express.static("./public"));
   app.use(errorHandler);
+  app.get('/',(req:Request,res:Response)=>{
+    res.send('hello world')
+  })
   app.use("/api", allRoute);
-  app.listen(port, () => console.log(`listening on another port ${port}`));
+  app.listen(port, () => console.log(`listening on another port http://localhost:${port}`));
 }
 // main()
 main()

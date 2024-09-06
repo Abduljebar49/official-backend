@@ -34,7 +34,7 @@ model RequestBid {
   id        Int      @id @default(autoincrement())
   itemName  String
   brandName String
-  groupId   Int
+  groupId   String
   amount    Int
   price     Int
   bidAmount Int

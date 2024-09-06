@@ -114,33 +114,6 @@ const createWithIdValidationCore = async (
   }
 };
 
-const createMultipleWithIdValidationCore = async (
-  req: Request,
-  res: Response,
-  _: NextFunction,
-  validation: ZodSchema,
-  model: any
-) => {
-  const { list } = req.body();
-
-  if (!Array.isArray(list)) {
-    return RespData(res, [], "Invalid data format. Expected an array.", 401);
-  }
-
-  const isValidEntries = list.every(
-    (entry) => requestSchema.safeParse(entry).success
-  );
-  if (!isValidEntries) {
-    return RespData(res, isValidEntries, "Some entries have invalid formats.", 401);
-  }
-
-  const newModelData = await createMultiple(list, model);
-  if (!newModelData) {
-    return RespData(res, [], "There is an error in server");
-  }
-  return RespData(res, newModelData);
-};
-
 const updateWithIdValidationCore = async (
   req: Request,
   res: Response,
@@ -226,3 +199,4 @@ export const createWithValidation = withErrorHandling(
   (req, res, next, validation, model) =>
     createWithValidationCore(req, res, next, validation!, model!)
 );
+

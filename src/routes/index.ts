@@ -1,7 +1,7 @@
 import express from "express";
 import userRoute from "./user.route"
-import accountRoute from "./account.controller"
-import requestRoute from "./request.controller"
+import accountRoute from "./account.route"
+import requestRoute from "./request.route"
 import emailRoute from "./email.route"
 
 const router = express.Router();
