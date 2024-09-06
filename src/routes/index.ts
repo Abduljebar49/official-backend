@@ -8,8 +8,8 @@ const router = express.Router();
 
 
 router.use("/users",userRoute);
-router.use(accountRoute);
-router.use("/requests", requestRoute);
-router.use("/send",emailRoute);
+// router.use(accountRoute);
+// router.use("/requests", requestRoute);
+// router.use("/send",emailRoute);
 
 export default router;

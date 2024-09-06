@@ -8,7 +8,7 @@ import { errorHandler } from "./middleware/error";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 3004;
+const port = process.env.PORT ?? 3001;
 
 const app: Express = express();
 app.use(express.json());
@@ -22,26 +22,35 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
 });
 
 const prisma = new PrismaClient();
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection:", reason);
+});
 
 async function main() {
-  app.use(express.json());
-  app.use(logger("dev"));
-  app.use(express.static("./public"));
-  app.use(errorHandler);
-  app.get('/',(req:Request,res:Response)=>{
-    res.send('hello world')
-  })
-  app.use("/api", allRoute);
-  app.listen(port, () => console.log(`listening on another port http://localhost:${port}`));
+  try {
+    app.use(express.json());
+    app.use(logger("dev"));
+    app.use(express.static("./public"));
+    app.use(errorHandler);
+    app.get("/", (req: Request, res: Response) => {
+      res.send("Welcome to Easy");
+    });
+    app.use("/api", allRoute);
+    app.listen(Number(port), "127.0.0.1", () =>
+      console.log(`Server running on http://localhost:${port}`)
+    );
+  } catch (error) {
+    console.error("Prisma Error:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
-// main()
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-    process.exit(1);
-  })
-  .catch(async (e) => {
-    // console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+
+main().catch((e) => {
+  console.error("Error in main function:", e);
+  process.exit(1);
+});
