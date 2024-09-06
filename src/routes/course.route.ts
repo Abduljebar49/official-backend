@@ -46,7 +46,7 @@ route.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
   );
 });
 
-route.delete("//:id", async (req: Request, res: Response, _: Function) => {
+route.delete("/:id", async (req: Request, res: Response, _: Function) => {
   try {
     const data = await deleteOne(req.params.id, prisma.course);
     RespData(res, data);

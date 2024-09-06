@@ -32,7 +32,7 @@ route.post("/", constants_1.upload.single("image"), (req, res, next) => __awaite
 route.put("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     return yield (0, core_1.updateWithIdValidation)(req, res, next, validators_1.courseEditSchema, clients_1.default.course);
 }));
-route.delete("//:id", (req, res, _) => __awaiter(void 0, void 0, void 0, function* () {
+route.delete("/:id", (req, res, _) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield (0, core_1.deleteOne)(req.params.id, clients_1.default.course);
         (0, constants_1.RespData)(res, data);
