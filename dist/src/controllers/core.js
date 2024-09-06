@@ -85,7 +85,7 @@ const createOne = (body, model) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (e) {
         console.log("e : ", e);
-        throw new Error(e.message);
+        return undefined;
     }
 });
 exports.createOne = createOne;

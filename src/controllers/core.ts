@@ -62,7 +62,7 @@ export const createOne = async (body: any, model: any) => {
     return data;
   } catch (e: any) {
     console.log("e : ",e);
-    throw new Error(e.message);
+    return undefined;
   }
 };
 

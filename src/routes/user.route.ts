@@ -53,7 +53,7 @@ router.put(
   }
 );
 
-router.delete("//:id", async (req: Request, res: Response, _: Function) => {
+router.delete("/:id", async (req: Request, res: Response, _: Function) => {
   try {
     const data = await deleteOne(req.params.id, prisma.user);
     RespData(res, data);
