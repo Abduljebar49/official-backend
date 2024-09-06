@@ -29,6 +29,7 @@ const authHandler = async (req: AuthenticatedRequest, res: Response, next: NextF
           return res.status(403).send({
             statusCode: 403,
             message: "Unauthorized",
+            error: err.message
           });
         }
         req.user = user;

@@ -34,6 +34,7 @@ const authHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     return res.status(403).send({
                         statusCode: 403,
                         message: "Unauthorized",
+                        error: err.message
                     });
                 }
                 req.user = user;
