@@ -18,7 +18,7 @@ const RespData = (res, data = [], message = "success", status = 200) => {
 };
 exports.RespData = RespData;
 const generateAccessToken = (user) => {
-    return jsonwebtoken_1.default.sign(JSON.parse(JSON.stringify(user)), process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1m" });
+    return jsonwebtoken_1.default.sign(JSON.parse(JSON.stringify(user)), process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1w" });
 };
 exports.generateAccessToken = generateAccessToken;
 const editGeneratedAccessToken = (authHeader) => {
