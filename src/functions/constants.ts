@@ -15,10 +15,12 @@ export const RespData = (
   res: Response,
   data: any = [],
   message: string = "success",
-  status: number = 200
+  status: number = 200,
+  success: boolean = true
 ) => {
-  return res.status(status).send({ data, message, success: true });
+  return res.status(status).send({ data, message, success });
 };
+
 
 export const generateAccessToken = (user:any)=> {
   return jwt.sign(
@@ -34,6 +36,11 @@ export const editGeneratedAccessToken = (authHeader:string,) =>{
     process.env.ACCESS_TOKEN_SECRET!,
     { expiresIn: "1s" },  );
 }
+
+export function generateRandomCode() {
+  return Math.floor(100000 + Math.random() * 900000);
+}
+
 
 export enum RStatus{
   SUCCESS="successfully fetched",

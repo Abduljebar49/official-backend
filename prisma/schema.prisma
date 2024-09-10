@@ -8,26 +8,28 @@ datasource db {
 }
 
 model Request {
-  id        Int      @id @default(autoincrement())
-  itemName  String
-  brandName String
-  amount    Int
-  groupId   Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  createdAt DateTime @default(now())
-  isExpired Boolean  @default(false)
+  id          Int      @id @default(autoincrement())
+  itemName    String
+  brandName   String
+  amount      Int
+  groupId     String
+  isRequested Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime @default(now())
+  isExpired   Boolean  @default(false)
 }
 
 model User {
-  id          Int          @id @default(autoincrement())
-  email       String       @unique
-  password    String
-  fullName    String
-  userType    UserType
-  requests    Request[]
-  requestBids RequestBid[]
-  link        Link[]
+  id                Int                 @id @default(autoincrement())
+  email             String              @unique
+  password          String
+  fullName          String
+  userType          UserType
+  requests          Request[]
+  requestBids       RequestBid[]
+  link              Link[]
+  passwordResetLink PasswordResetLink[]
 }
 
 model RequestBid {
@@ -49,6 +51,14 @@ model Link {
   userId Int
   token  String   @unique
   expiry DateTime
+  user   User     @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetLink {
+  id     Int      @id @default(autoincrement())
+  code   String
+  expiry DateTime
+  userId Int
   user   User     @relation(fields: [userId], references: [id])
 }
 

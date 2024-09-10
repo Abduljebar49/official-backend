@@ -10,7 +10,7 @@ import {
   getOne,
   updateWithIdValidation,
 } from "../controllers/core";
-import { createMultipleRequest } from "../controllers/request.controller";
+import { createMultipleRequest, getGroupedRequests } from "../controllers/request.controller";
 
 const tag = "requests";
 
@@ -25,6 +25,8 @@ router.get("/:id", async (req: Request, res: Response, next: Function) => {
   const data = await getOne({ id: req.params.id }, prisma.request);
   RespData(res, data);
 });
+
+router.get("/by/group", getGroupedRequests);
 
 router.post("", async (req: Request, res: Response, next: NextFunction) => {
   return await createWithIdValidation(req, res, next, requestSchema, prisma.request);

@@ -5,10 +5,11 @@ import { PrismaClient } from "@prisma/client";
 import allRoute from "./routes";
 import cors from "cors";
 import { errorHandler } from "./middleware/error";
+import authHandler from "./middleware/auth";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 3001;
+const port = process.env.PORT ?? 3000;
 
 const app: Express = express();
 app.use(express.json());
@@ -36,6 +37,7 @@ async function main() {
     app.use(logger("dev"));
     app.use(express.static("./public"));
     app.use(errorHandler);
+    // app.use(authHandler);
     app.get("/", (req: Request, res: Response) => {
       res.send("Welcome to Easy");
     });

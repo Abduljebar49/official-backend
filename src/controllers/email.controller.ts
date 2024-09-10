@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-
 dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -13,11 +12,10 @@ export const sendWelcomeEmail = async (req: Request, res: Response) => {
   const { email, name } = req.body;
 
   if (!name || !email) {
-    return res.status(400).send({message:"Name and email are required."});
+    return res.status(400).send({ message: "Name and email are required." });
   }
 
   try {
-
     let bodyContent = fs.readFileSync(
       path.join(__dirname, "../../../html/welcome.html"),
       "utf-8"
@@ -135,6 +133,54 @@ export const sendLinkEmail = async (req: Request, res: Response) => {
       from: "noreply@debbal.com", // Change this to your verified email domain
       to: email,
       subject: "Request Response Needed",
+      html: htmlContent,
+    });
+
+    if (error) {
+      return res.status(400).json({ error });
+    }
+
+    res.status(200).json({ message: "Email successfully sent", data });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send email", details: err });
+  }
+};
+
+export const sendPasswordReset = async (req: Request, res: Response) => {
+  const { email, name, code } = req.body;
+  const htmlContent = `
+  <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f7fafc; padding: 24px;">
+      <div style="background-color: white; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <h1 style="font-size: 24px; font-weight: 600; color: #3182ce; margin-bottom: 16px;">
+          Password Reset Request
+        </h1>
+        <p style="color: #2d3748;">Dear ${name},</p>
+        <p style="color: #2d3748;">
+          You requested to reset your password. Use the following code to reset your password:
+        </p>
+        <p style="color: #2d3748; font-size: 18px; font-weight: bold;">
+          ${code}
+        </p>
+        <p style="color: #2d3748;">
+          Please note: This code will expire in 1 hour.
+        </p>
+        <p style="color: #2d3748;">Best regards,</p>
+        <p style="color: #2d3748;">
+          Abduljebar Sani<br />
+          COO EasyConnect<br />
+          EasyConnect Medical Pharmaceuticals
+        </p>
+      </div>
+    </body>
+  </html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "noreply@easyconnect.com",
+      to: email,
+      subject: "Password Reset Request",
       html: htmlContent,
     });
 

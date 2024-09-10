@@ -1,19 +1,28 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+
 interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
 const authHandler = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    console.log("inside auth handler")
+    console.log("inside auth handler");
+
+    // Define public paths that bypass authentication
     const publicPaths = [
-      "/api/login",
-      "/api/login/super",
-      "/api/send/welcome"
+      { path: "/api/login", method: "ALL" },
+      { path: "/api/login/super", method: "ALL" },
+      { path: "/api/send/welcome", method: "ALL" },
+      { path: "/api/users", method: "POST" }
     ];
 
-    if (publicPaths.includes(req.originalUrl)) {
+    // Check if the current request matches a public path
+    const isPublic = publicPaths.some(
+      route => route.path === req.originalUrl && (route.method === req.method || route.method === "ALL")
+    );
+
+    if (isPublic) {
       return next();
     }
 

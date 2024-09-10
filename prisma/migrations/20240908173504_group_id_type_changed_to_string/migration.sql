@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Request" ALTER COLUMN "groupId" SET DATA TYPE TEXT;

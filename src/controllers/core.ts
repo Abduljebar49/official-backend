@@ -52,6 +52,7 @@ export const createOne = async (body: any, model: any) => {
     const data = await model.create({ data: body });
     return data;
   } catch (e: any) {
+    console.log("error", e);
     return undefined;
   }
 };
@@ -61,10 +62,10 @@ export const createMultiple = async (body: any[], model: any) => {
     const data = await model.createMany({ data: body });
     return data;
   } catch (e: any) {
+    console.log("error : ", e);
     return undefined;
   }
 };
-
 
 export const deleteOne = async (id: string, model: any) => {
   const data = await model.delete({ where: { id } });
@@ -108,7 +109,7 @@ const createWithIdValidationCore = async (
     }
     const newModelData = await createOne(body, model);
     if (!newModelData) {
-      return RespData(res, [], "There is an error in server");
+      return RespData(res, [], "There is an error in server", 200, false);
     }
     return RespData(res, newModelData);
   }
@@ -199,4 +200,3 @@ export const createWithValidation = withErrorHandling(
   (req, res, next, validation, model) =>
     createWithValidationCore(req, res, next, validation!, model!)
 );
-

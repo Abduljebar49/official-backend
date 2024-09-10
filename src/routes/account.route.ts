@@ -6,9 +6,11 @@ import { getOneWithEmail } from "../controllers/core";
 import prisma from "../../prisma/clients";
 import {
   generateAccessToken,
+  generateRandomCode,
   NoDataFound,
   RespData,
 } from "../functions/constants";
+import { addHours } from "date-fns";
 
 const router = express.Router();
 
@@ -69,5 +71,42 @@ router.post(
     }
   }
 );
+
+router.post('/auth/forget-password', async (req: Request, res: Response, next: NextFunction) => {
+  const {email} = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+  
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const resetCode = generateRandomCode();
+      const expiry = addHours(new Date(), 1); 
+  
+      
+      // await prisma.passwordResetLink.create({
+      //   data: {
+      //     userId: user.id,
+      //     code: resetCode.toString(),
+      //     expiry,
+      //   },
+      // });
+  
+      
+      
+  
+      res.status(200).json({ message: "Reset code sent successfully", });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "An error occurred while sending the email" });
+    }
+  
+
+})
 
 export default router;
