@@ -20,6 +20,7 @@ const client_1 = require("@prisma/client");
 const routes_1 = __importDefault(require("./routes"));
 const error_1 = require("./middleware/error");
 const auth_1 = __importDefault(require("./middleware/auth"));
+const cors = require('cors');
 dotenv_1.default.config();
 const port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3001;
 const app = (0, express_1.default)();
@@ -36,6 +37,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         app.use(express_1.default.json());
         app.use((0, morgan_1.default)("dev"));
+        app.use(cors());
         app.use(express_1.default.static("./public"));
         app.use(error_1.errorHandler);
         app.use(auth_1.default);
